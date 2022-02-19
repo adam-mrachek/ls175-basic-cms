@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'sinatra/reloader'
+require 'redcarpet'
 require 'pry'
 
 configure do
@@ -25,6 +26,23 @@ def error_for_nonexistent_file(file)
   end
 end
 
+def render_markdown(text)
+  markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+  markdown.render(text)
+end
+
+def load_file_content(path)
+  content = File.read(path)
+
+  case File.extname(path)
+  when ".txt"
+    headers["Content-Type"] = "text/plain"
+    content
+  when ".md"
+    render_markdown(content)
+  end
+end
+
 get '/' do
   @files = load_files
 
@@ -35,13 +53,10 @@ get '/:filename' do
   @files = load_files
   file_path = root + "/data/" + params[:filename]
 
-  error = error_for_nonexistent_file(file_path)
-  if error
-    session[:error] = error
-
-    redirect "/"
+  if File.exist?(file_path)
+    load_file_content(file_path)
   else
-    headers["Content-Type"] = "text/plain"
-    File.read(file_path)
+    session[:error] = "#{params[:filename]} does not exist."
+    redirect "/"
   end
 end
