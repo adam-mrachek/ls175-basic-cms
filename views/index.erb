@@ -1,12 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Basic CMS</title>
-</head>
-<body>
   <header>
     <h1>Basic CMS</h1>
   </header>
@@ -17,13 +8,16 @@
         <p><%= session.delete(:error) %></p>
       </div>
     <% end %>
+
+    <% if session[:success] %>
+      <div>
+        <p><%= session.delete(:success) %></p>
+      </div>
+    <% end %>
     
     <ul>
     <% @files.each do |file| %>
-      <li><a href="/<%= file %>"><%= file %></a></li>
+      <li><a href="/<%= file %>"><%= file %></a> - <a href="/<%= file %>/edit">Edit</a></li>
     <% end %>
     </ul>
   </main>
-</body>
-</html>
-
