@@ -8,14 +8,17 @@ configure do
   set :sessions_secret, 'secret'
 end
 
-# root = File.expand_path("..", __FILE__)
-
-def root
-  File.expand_path("..", __FILE__)
+def data_path
+  if ENV["RACK_ENV"] == "test"
+    File.expand_path("../test/data", __FILE__)
+  else
+    File.expand_path("../data", __FILE__)
+  end
 end
 
 def load_files
-  Dir.glob(root + "/data/*").map do |path|
+  pattern = File.join(data_path, "*")
+  Dir.glob(pattern).map do |path|
     File.basename(path)
   end
 end
@@ -51,7 +54,7 @@ end
 
 get '/:filename' do
   @files = load_files
-  file_path = root + "/data/" + params[:filename]
+  file_path = File.join(data_path, params[:filename])
 
   if File.exist?(file_path)
     load_file_content(file_path)
@@ -63,7 +66,7 @@ get '/:filename' do
 end
 
 get '/:filename/edit' do
-  file_path = root + "/data/" + params[:filename]
+  file_path = File.join(data_path, params[:filename])
 
   if File.exist?(file_path)
     @file = File.read(file_path)
@@ -72,7 +75,8 @@ get '/:filename/edit' do
 end
 
 post '/:filename' do
-  file_path = root + "/data/" + params[:filename]
+  file_path = File.join(data_path, params[:filename])
+
   content = params[:file_content]
 
   File.write(file_path, content)
