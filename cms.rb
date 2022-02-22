@@ -29,6 +29,12 @@ def error_for_nonexistent_file(file)
   end
 end
 
+def error_for_filename(file)
+  if !(1..100).cover?(file.length)
+    "A name is required."
+  end
+end
+
 def render_markdown(text)
   markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
   markdown.render(text)
@@ -50,6 +56,26 @@ get '/' do
   @files = load_files
 
   erb :index
+end
+
+get '/new' do
+  erb :new
+end
+
+post '/create' do
+  new_file = params[:filename].strip
+  
+  error = error_for_filename(new_file)
+  if error
+   session[:error] = error
+   status 422
+   erb :new
+  else
+    File.open(File.join(data_path, new_file), "w")
+    session[:success] = "#{new_file} was created."
+    redirect "/"
+  end
+
 end
 
 get '/:filename' do

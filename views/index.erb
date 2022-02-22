@@ -4,13 +4,13 @@
   <main>
 
     <% if session[:error] %>
-      <div>
+      <div class="message">
         <p><%= session.delete(:error) %></p>
       </div>
     <% end %>
 
     <% if session[:success] %>
-      <div>
+      <div class="message">
         <p><%= session.delete(:success) %></p>
       </div>
     <% end %>
@@ -20,4 +20,5 @@
       <li><a href="/<%= file %>"><%= file %></a> - <a href="/<%= file %>/edit">Edit</a></li>
     <% end %>
     </ul>
+    <a href="/new">New Document</a>
   </main>
