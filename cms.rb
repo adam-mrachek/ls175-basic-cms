@@ -53,17 +53,30 @@ def load_file_content(path)
   end
 end
 
+def signed_in?
+  session.key?(:username)
+end
+
+def require_sign_in
+  unless signed_in?
+    session[:error] = "You must be signed in to do that."
+    redirect "/"
+  end
+end
+
 get '/' do
   @files = load_files
-
+  
   erb :index, layout: :layout
 end
 
 get '/new' do
+  require_sign_in
   erb :new
 end
 
 post '/create' do
+  require_sign_in
   new_file = params[:filename].strip
   
   error = error_for_filename(new_file)
@@ -76,7 +89,6 @@ post '/create' do
     session[:success] = "#{new_file} was created."
     redirect "/"
   end
-
 end
 
 get '/:filename' do
@@ -93,8 +105,8 @@ get '/:filename' do
 end
 
 get '/:filename/edit' do
+  require_sign_in
   file_path = File.join(data_path, params[:filename])
-
   if File.exist?(file_path)
     @file = File.read(file_path)
     erb :edit
@@ -102,7 +114,10 @@ get '/:filename/edit' do
 end
 
 post '/:filename' do
+  require_sign_in
   file_path = File.join(data_path, params[:filename])
+
+  erb :new
 
   content = params[:file_content]
 
@@ -114,10 +129,11 @@ post '/:filename' do
 end
 
 post '/:filename/delete' do
+  require_sign_in
   file_path = File.join(data_path, params[:filename])
-  deleted = File.delete(file_path) if File.exist?(file_path)
   
-  if deleted
+  if File.exist?(file_path)
+    File.delete(file_path)
     session[:success] = "#{params[:filename]} was deleted."
     redirect "/"
   else
