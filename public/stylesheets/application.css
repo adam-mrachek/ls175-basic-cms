@@ -3,7 +3,21 @@ body {
   padding: 1em;
 }
 
-.message {
+.error-message {
   background-color: yellow;
   padding: 10px;
+}
+
+.success-message {
+  background-color: green;
+  padding: 10px;
+}
+
+form.inline {
+  display: inline!important;
+}
+
+.user-status {
+  font-style: italic;
+  font-size: 0.9em;
 }

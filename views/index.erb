@@ -1,24 +1,40 @@
-  <header>
-    <h1>Basic CMS</h1>
-  </header>
-  <main>
+<header>
+  <h1>Basic CMS</h1>
+ </header>
+<main id="documents">
 
-    <% if session[:error] %>
-      <div class="message">
-        <p><%= session.delete(:error) %></p>
-      </div>
-    <% end %>
+  <% if session[:error] %>
+    <div class="error-message">
+      <p><%= session.delete(:error) %></p>
+     </div>
+  <% end %>
 
-    <% if session[:success] %>
-      <div class="message">
-        <p><%= session.delete(:success) %></p>
-      </div>
-    <% end %>
+  <% if session[:success] %>
+    <div class="success-message">
+      <p><%= session.delete(:success) %></p>
+    </div>
+  <% end %>
     
-    <ul>
-    <% @files.each do |file| %>
-      <li><a href="/<%= file %>"><%= file %></a> - <a href="/<%= file %>/edit">Edit</a></li>
-    <% end %>
-    </ul>
-    <a href="/new">New Document</a>
-  </main>
+ <ul>
+   <% @files.each do |file| %>
+     <li>
+       <a href="/<%= file %>"><%= file %></a> - 
+       <a href="/<%= file %>/edit">Edit</a> - 
+       <form class="inline" method="post" action="/<%= file %>/delete">
+         <button type="submit">Delete</button>
+       </form>
+     </li>
+   <% end %>
+ </ul>
+
+ <p><a href="/new">New Document</a></p>
+ 
+  <% if session[:username] %>
+    <form action="/users/signout" method="post">
+      <p class="user-status">Signed in as <%= session[:username] %></p>
+      <button type="Submit">Sign Out</button>
+    </form>
+  <% else %>
+    <p><a href="/users/signin">Sign In</a></p>
+  <% end %>
+</main>

@@ -21,6 +21,7 @@ GEM
     redcarpet (3.5.1)
     ruby-progressbar (1.11.0)
     ruby2_keywords (0.0.5)
+    securerandom (0.1.1)
     sinatra (2.2.0)
       mustermann (~> 1.0)
       rack (~> 2.2)
@@ -43,6 +44,7 @@ DEPENDENCIES
   minitest-reporters
   rack-test
   redcarpet
+  securerandom
   sinatra
   sinatra-contrib
 

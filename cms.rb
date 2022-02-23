@@ -1,11 +1,12 @@
 require 'sinatra'
 require 'sinatra/reloader'
 require 'redcarpet'
+require 'securerandom'
 require 'pry'
 
 configure do
   enable :sessions
-  set :sessions_secret, 'secret'
+  set :sessions_secret, SecureRandom.hex(64)
 end
 
 def data_path
@@ -55,7 +56,7 @@ end
 get '/' do
   @files = load_files
 
-  erb :index
+  erb :index, layout: :layout
 end
 
 get '/new' do
@@ -109,5 +110,40 @@ post '/:filename' do
   
   session[:success] = "#{params[:filename]} has been updated"
 
+  redirect "/"
+end
+
+post '/:filename/delete' do
+  file_path = File.join(data_path, params[:filename])
+  deleted = File.delete(file_path) if File.exist?(file_path)
+  
+  if deleted
+    session[:success] = "#{params[:filename]} was deleted."
+    redirect "/"
+  else
+    session[:error] = "#{params[:filename]} does not exist."
+    redirect "/"
+  end
+end
+
+get '/users/signin' do
+  erb :"users/signin"
+end
+
+post '/users/signin' do
+  if params[:username] == 'admin' && params[:password] == 'secret'
+    session[:username] = params[:username]
+    session[:success] = "Welcome!"
+    redirect "/"
+  else
+    session[:error] = "Invalid credentials"
+    status 422
+    erb :"users/signin"
+  end
+end
+
+post '/users/signout' do
+  session.delete(:username)
+  session[:success] = "You have been signed out."
   redirect "/"
 end

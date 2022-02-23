@@ -1,0 +1,16 @@
+<% if session[:error] %>
+  <div class="error-message">
+    <p><%= session.delete(:error) %></p>
+  </div>
+<% end %>
+<form action="/users/signin" method="post">
+  <div>
+    <label for="username">Username:</label>
+    <input type="text" name="username" id="">
+  </div>
+  <div>
+    <label for="password">Password:</label>
+    <input type="password" name="password" id="">
+  </div>
+  <button type="submit">Sign In</button>
+</form>
