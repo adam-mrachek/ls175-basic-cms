@@ -1,0 +1,17 @@
+<h1>Current Users</h1>
+
+<ul>
+  <% @users.each do |user| %>
+    <li>
+      <%= user %>
+       - <a href="/users/<%= user %>/edit">Edit</a>
+       - <form class="inline" action="/users/<%= user %>/delete" method="post">
+          <button type="submit">Delete</button>
+        </form>
+    </li>
+  <% end %>
+</ul>
+
+<p>
+  <a href="/users/new">Create New User Account</a>
+</p>

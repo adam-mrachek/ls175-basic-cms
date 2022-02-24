@@ -8,6 +8,18 @@
   <title>Basic CMS</title>
 </head>
 <body>
+  <% if session[:error] %>
+    <div class="error-message">
+      <p><%= session.delete(:error) %></p>
+     </div>
+  <% end %>
+
+  <% if session[:success] %>
+    <div class="success-message">
+      <p><%= session.delete(:success) %></p>
+    </div>
+  <% end %>
+  
   <%= yield %>
 </body>
 </html>

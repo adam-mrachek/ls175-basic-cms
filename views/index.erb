@@ -2,18 +2,6 @@
   <h1>Basic CMS</h1>
  </header>
 <main id="documents">
-
-  <% if session[:error] %>
-    <div class="error-message">
-      <p><%= session.delete(:error) %></p>
-     </div>
-  <% end %>
-
-  <% if session[:success] %>
-    <div class="success-message">
-      <p><%= session.delete(:success) %></p>
-    </div>
-  <% end %>
     
  <ul>
    <% @files.each do |file| %>

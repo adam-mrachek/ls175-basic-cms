@@ -2,11 +2,22 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'redcarpet'
 require 'securerandom'
+require 'yaml'
 require 'pry'
 
 configure do
   enable :sessions
   set :sessions_secret, SecureRandom.hex(64)
+end
+
+helpers do
+  def admin?
+    admins.has_key?(session[:username])
+  end
+end
+
+def root
+  File.expand_path("..", __FILE__)
 end
 
 def data_path
@@ -64,15 +75,92 @@ def require_sign_in
   end
 end
 
+def require_valid_username(username)
+  if username.length <= 2
+    session[:error] = "Username must be at least 2 characters long."
+    redirect "/users/new"
+  end
+end
+
+def require_valid_password(password)
+  if password.length <= 8
+    session[:error] = "Password must be at least 8 characters."
+    redirect "/users/new"
+  end
+end
+  
+def require_admin
+  unless admin?
+    session[:error] = "You must be signed in as an admin to do that."
+    redirect "/"
+  end
+end
+
+def load_users
+  users_path = if ENV["RACK_ENV"] == "test"
+    File.expand_path("../test/users.yaml", __FILE__)
+  else
+    File.expand_path("../users.yaml", __FILE__)
+  end
+  YAML.load_file(users_path)
+end
+
+def admins
+  file = File.join(root, "admins.yaml")
+  YAML.load(File.open(file))
+end
+
+
+def user_exist?(username)
+  users.has_key?(username.to_sym)
+end
+
 get '/' do
   @files = load_files
-  
+  users 
   erb :index, layout: :layout
 end
 
 get '/new' do
   require_sign_in
   erb :new
+end
+
+get '/users' do
+  require_admin
+  @users = load_users.keys.map(&:to_s)
+  erb :"/users/index", layout: :layout
+end
+
+get '/users/new' do
+  erb :"/users/new", layout: :layout
+end
+
+post '/users' do
+  require_valid_username(params[:username].strip)
+  require_valid_password(params[:password].strip)
+
+  if !user_exist?(params[:username]) && (params[:password] == params[:password_confirm])
+    new_user = { params[:username].to_sym => params[:password] }
+    updated_users = load_users.merge(new_user)
+    File.write("users.yaml", updated_users.to_yaml)
+    session[:success] = "New user created."
+    redirect "/users"
+  elsif user_exist?(params[:username])
+    session[:error] = "That username already exists."
+    erb :"/users/new", layout: :layout
+  elsif params[:password] != params[:password_confirm]
+    session[:error] = "Passwords do not match. Please enter again."
+    erb :"/users/new", layout: :layout
+  end
+end
+  
+post '/users/:user/delete' do
+  user_hash = load_users
+  user_hash.delete(params[:user].to_sym)
+  File.write("users.yaml", user_hash.to_yaml)
+  session[:success] = "User was deleted."
+  redirect "/users"
 end
 
 post '/create' do
