@@ -177,7 +177,7 @@ class CmsTest < Minitest::Test
   end
 
   def test_signin
-    post 'users/signin', username: "admin", password: "secret"
+    post '/users/signin', username: "admin", password: "secret"
     
     assert_equal 302, last_response.status
     assert_equal "Welcome!", session[:success]
@@ -197,6 +197,7 @@ class CmsTest < Minitest::Test
 
   def test_signout
     post '/users/signin', username: "admin", password: "secret"
+    # binding.pry
     get last_response["Location"]
     assert_includes last_response.body, "Welcome"
 

@@ -3,6 +3,7 @@ require 'sinatra/reloader'
 require 'redcarpet'
 require 'securerandom'
 require 'yaml'
+require 'bcrypt'
 require 'pry'
 
 configure do
@@ -112,12 +113,17 @@ end
 
 
 def user_exist?(username)
-  users.has_key?(username.to_sym)
+  load_users.has_key?(username)
+end
+
+def validate_password(username, password)
+  encrypted_password = load_users[username]
+  BCrypt::Password.new(encrypted_password) == password
 end
 
 get '/' do
   @files = load_files
-  users 
+  load_users 
   erb :index, layout: :layout
 end
 
@@ -235,7 +241,7 @@ get '/users/signin' do
 end
 
 post '/users/signin' do
-  if params[:username] == 'admin' && params[:password] == 'secret'
+  if user_exist?(params[:username]) && validate_password(params[:username], params[:password])
     session[:username] = params[:username]
     session[:success] = "Welcome!"
     redirect "/"
